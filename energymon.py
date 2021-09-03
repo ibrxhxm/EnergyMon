@@ -3,16 +3,17 @@
 import serial
 import logging
 import thingspeak
-import ConfigParser
+import configparser
 
-channel = thingspeak.Channel(CHANNEL_ID, WRITE_API_KEY)
 SERIAL_PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
-config = ConfigParser.RawConfigParser()
+config = configparser.ConfigParser()
 config.read("config.properties")
 
 WRITE_API_KEY = config.get("THINGSPEAK", "write_api")
 CHANNEL_ID = config.get("THINGSPEAK", "channel_id")
+print(WRITE_API_KEY)
+channel = thingspeak.Channel(CHANNEL_ID, WRITE_API_KEY)
 
 def readSerial(ser):
     try:
@@ -25,13 +26,12 @@ def readSerial(ser):
             else:
                 [rmsCurrent, rmsVoltage, realPower, apparentPower, powerFactor] = line.split("|")
                 
-                if not isValidSensorData(realPower):
+                if not isValidSensorData(float(realPower)):
                     writeToThingspeak()
                 else:
                     writeToThingspeak(rmsCurrent, rmsVoltage, realPower, apparentPower, powerFactor)
     
     except:
-        
         logging.warning("Connection failed")
              
 def writeToThingspeak(rmsC = 0.00, rmsV = 0.00, P = 0.00, Q = 0.00, PF = 0.00):
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
     ser.flush()
     logging.basicConfig(filename='app.log', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-    
+
     while True:
         readSerial(ser)
 
