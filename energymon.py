@@ -3,12 +3,16 @@
 import serial
 import logging
 import thingspeak
+import ConfigParser
 
-WRITE_API_KEY = "2LU9HY698C6K2H4Z" #dummy API KEY :)
-CHANNEL_ID = "1494953"
 channel = thingspeak.Channel(CHANNEL_ID, WRITE_API_KEY)
 SERIAL_PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
+config = ConfigParser.RawConfigParser()
+config.read("config.properties")
+
+WRITE_API_KEY = config.get("THINGSPEAK", "write_api")
+CHANNEL_ID = config.get("THINGSPEAK", "channel_id")
 
 def readSerial(ser):
     try:
