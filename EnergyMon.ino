@@ -105,7 +105,7 @@ void loop() {
   payload.rmsCurrent = emon1.Irms;             //extract Irms into Variable
 
   sendPayloadToSerial(payload);
-  //sendPayloadToLCD(payload);
+  sendPayloadToLCD(payload);
 
   delay(3000);
 } // end loop
