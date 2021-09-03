@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import serial
 import logging
 import thingspeak
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     print("Starting program")
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
     ser.flush()
-    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.basicConfig(filename='app.log', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
     
     while True:
         readSerial(ser)
