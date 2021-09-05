@@ -12,45 +12,43 @@ config.read("config.properties")
 
 WRITE_API_KEY = config.get("THINGSPEAK", "write_api")
 CHANNEL_ID = config.get("THINGSPEAK", "channel_id")
-print(WRITE_API_KEY)
 channel = thingspeak.Channel(CHANNEL_ID, WRITE_API_KEY)
+
 
 def readSerial(ser):
     try:
         if ser.in_waiting > 0:
             line = ser.readline().decode('ascii').rstrip()
-            
+
             if line.startswith("error"):
                 logging.warning("Fatal error occured")
-                
+
             else:
                 [rmsCurrent, rmsVoltage, realPower, apparentPower, powerFactor] = line.split("|")
-                
+
                 if not isValidSensorData(float(realPower)):
                     writeToThingspeak()
                 else:
                     writeToThingspeak(rmsCurrent, rmsVoltage, realPower, apparentPower, powerFactor)
-    
+
     except:
         logging.warning("Connection failed")
-             
-def writeToThingspeak(rmsC = 0.00, rmsV = 0.00, P = 0.00, Q = 0.00, PF = 0.00):
-    
+
+
+def writeToThingspeak(rmsC=0.00, rmsV=0.00, P=0.00, Q=0.00, PF=0.00):
     channel.update({"field1": rmsV, "field2": rmsC, "field3": P, "field4": Q, "field5": PF})
-    
+
     print("Vrms: {}\tIrms: {}\tReal Power: {}\tApparent Power: {}\tPower Factor: {}\n".format(rmsV, rmsC, P, Q, PF))
-    
-    
-def isValidSensorData (value):
+
+
+def isValidSensorData(value):
     if value < 0.0:
         return False
-    
+
     return True
-    
-    
+
 
 if __name__ == '__main__':
-    
     print("Starting program")
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
     ser.flush()
@@ -58,4 +56,3 @@ if __name__ == '__main__':
 
     while True:
         readSerial(ser)
-
