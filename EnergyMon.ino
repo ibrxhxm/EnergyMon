@@ -8,7 +8,7 @@ LiquidCrystal_PCF8574 lcd(0x27); // set the LCD address to 0x27 for a 16 chars a
 
 
 #define CURRENT_CAL 52.51 // 60.6 before calibration
-#define VOLTAGE_CAL 670.62
+#define VOLTAGE_CAL 664.92
 #define PHASE_SHIFT 1.7
 #define CURRENT_PIN 1
 #define VOLTAGE_PIN 3
@@ -64,10 +64,10 @@ void sendPayloadToLCD(Power payload) {
     lcd.print(payload.rmsVoltage);
     lcd.print("V");
 
-    lcd.setCursor(0, 1);
-    lcd.print("Irms: ");
-    lcd.print(payload.rmsCurrent);
-    lcd.print("A");
+       lcd.setCursor(0, 1);
+       lcd.print("Irms: ");
+       lcd.print(payload.rmsCurrent);
+       lcd.print("A");
 
     delay(3000);
     lcd.clear();
@@ -88,7 +88,7 @@ void sendPayloadToLCD(Power payload) {
     lcd.setCursor(0, 0);
     lcd.print("PF: ");
     lcd.print(payload.powerFactor);
-    
+
   } else {
     Serial.println("error: LCD not found.");
   }
@@ -98,11 +98,19 @@ void loop() {
   Power payload;
   emon1.calcVI(HALF_WAVELENGTHS, TIME_OUT);        // Calculate all. No.of half wavelengths (crossings), time-out
 
-  payload.realPower = emon1.realPower/1000.00;        //extract Real Power into variable
-  payload.apparentPower = emon1.apparentPower/1000.00;    //extract Apparent Power into variable
+  payload.realPower = emon1.realPower / 1000.00;      //extract Real Power into variable
+  payload.apparentPower = emon1.apparentPower / 1000.00;  //extract Apparent Power into variable
   payload.powerFactor = emon1.powerFactor;      //extract Power Factor into Variable
   payload.rmsVoltage = emon1.Vrms;             //extract Vrms into Variable
   payload.rmsCurrent = emon1.Irms;             //extract Irms into Variable
+
+  if (payload.realPower <= 0.00 || payload.powerFactor <= 0.00) {
+    payload.realPower = 0.00;
+    payload.apparentPower = 0.00;
+    payload.powerFactor = 0.00;
+    payload.rmsVoltage = 0.00;
+    payload.rmsCurrent = 0.00;
+  }
 
   sendPayloadToSerial(payload);
   sendPayloadToLCD(payload);
