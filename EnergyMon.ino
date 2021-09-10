@@ -122,14 +122,6 @@ void loop() {
   payload.rmsVoltage = emon1.Vrms;             //extract Vrms into Variable
   payload.rmsCurrent = emon1.Irms;             //extract Irms into Variable
 
-  if (payload.realPower <= 0.00 || payload.powerFactor <= 0.00) {
-    payload.realPower = 0.00;
-    payload.apparentPower = 0.00;
-    payload.powerFactor = 0.00;
-    payload.rmsVoltage = 0.00;
-    payload.rmsCurrent = 0.00;
-  }
-
   sendPayloadToSerial(payload);
   sendPayloadToLCD(payload);
 
