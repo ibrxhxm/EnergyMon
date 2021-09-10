@@ -34,6 +34,24 @@ void setup() {
   Wire.begin();
   Wire.beginTransmission(0x27);
   lcd.setBacklight(255);
+
+  error = Wire.endTransmission();
+
+  if (error == 0) {
+    lcd.begin(16, 2); // initialize the lcd
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Energy Mon");
+    delay(2000);
+    lcd.clear();
+    lcd.print("Loading...");
+    lcd.setCursor(0, 1);
+    lcd.print("Please wait :)");
+    delay(3000);
+  }  else {
+    Serial.println("error: LCD not found.");
+  }
+
 } // end setup
 
 void sendPayloadToSerial(Power payload) {
@@ -64,10 +82,10 @@ void sendPayloadToLCD(Power payload) {
     lcd.print(payload.rmsVoltage);
     lcd.print("V");
 
-       lcd.setCursor(0, 1);
-       lcd.print("Irms: ");
-       lcd.print(payload.rmsCurrent);
-       lcd.print("A");
+    lcd.setCursor(0, 1);
+    lcd.print("Irms: ");
+    lcd.print(payload.rmsCurrent);
+    lcd.print("A");
 
     delay(3000);
     lcd.clear();
