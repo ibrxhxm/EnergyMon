@@ -4,6 +4,7 @@ import serial
 import logging
 import thingspeak
 import configparser
+import requests
 
 SERIAL_PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
@@ -13,6 +14,8 @@ config.read("config.properties")
 WRITE_API_KEY = config.get("THINGSPEAK", "write_api")
 CHANNEL_ID = config.get("THINGSPEAK", "channel_id")
 channel = thingspeak.Channel(CHANNEL_ID, WRITE_API_KEY)
+headers = {"Content-type": "application/json"}
+url = "http://192.168.0.197:9090/fyp/emon"
 
 
 def readSerial(ser):
@@ -31,6 +34,26 @@ def readSerial(ser):
                 else:
                     writeToThingspeak(rmsCurrent, rmsVoltage, realPower, apparentPower, powerFactor)
 
+                    payload = {
+                        "data": {
+                            "rms_voltage": rmsVoltage,
+                            "rms_current": rmsCurrent,
+                            "apparent_power": apparentPower,
+                            "real_power": realPower,
+                            "power_factor": powerFactor
+                        }
+                    }
+                    response = requests.post(url, json=payload, headers=headers)
+                    response.raise_for_status()
+
+    except requests.exceptions.HTTPError as errh:
+        logging.warning(errh)
+    except requests.exceptions.ConnectionError as errc:
+        logging.warning(errc)
+    except requests.exceptions.Timeout as errt:
+        logging.warning(errt)
+    except requests.exceptions.RequestException as err:
+        logging.warning(err)
     except:
         logging.warning("Connection failed")
 
